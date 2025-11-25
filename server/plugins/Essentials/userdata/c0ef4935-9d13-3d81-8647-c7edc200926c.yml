@@ -1,0 +1,38 @@
+teleportenabled: true
+teleportauto: false
+godmode: false
+muted: false
+jailed: false
+ip-address: 0:0:0:0:0:0:0:1
+afk: false
+socialspy: false
+npc: false
+powertoolsenabled: true
+accepting-pay: true
+baltop-exempt: false
+timestamps:
+  lastteleport: 0
+  lastheal: 0
+  mute: 0
+  jail: 0
+  onlinejail: 0
+  logout: 1764097023868
+  login: 1764096820207
+money: '0'
+last-account-name: Gizmo42_
+lastlocation:
+  world: a832ce7f-a7b6-47ad-b79c-355b03bfadf4
+  world-name: world
+  x: 3.5
+  y: 77.0
+  z: 119.30550608369192
+  yaw: 101.70281982421875
+  pitch: -0.04427146911621094
+logoutlocation:
+  world: a832ce7f-a7b6-47ad-b79c-355b03bfadf4
+  world-name: world
+  x: 3.5
+  y: 77.0
+  z: 119.59931824263585
+  yaw: 67.51048278808594
+  pitch: 6.561279587913305E-5

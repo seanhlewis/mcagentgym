@@ -1,0 +1,38 @@
+teleportenabled: true
+teleportauto: false
+godmode: false
+muted: false
+jailed: false
+ip-address: 127.0.0.1
+afk: false
+socialspy: false
+npc: false
+powertoolsenabled: true
+accepting-pay: true
+baltop-exempt: false
+timestamps:
+  lastteleport: 0
+  lastheal: 0
+  mute: 0
+  jail: 0
+  onlinejail: 0
+  logout: 1764058077733
+  login: 1764057816362
+money: '0'
+last-account-name: EveBot_49080
+lastlocation:
+  world: a832ce7f-a7b6-47ad-b79c-355b03bfadf4
+  world-name: world
+  x: 4.500000000000038
+  y: 62.0
+  z: 9.7
+  yaw: 0.0
+  pitch: 37.79999923706055
+logoutlocation:
+  world: a832ce7f-a7b6-47ad-b79c-355b03bfadf4
+  world-name: world
+  x: 4.500000000000008
+  y: 62.0
+  z: 9.7
+  yaw: 0.0
+  pitch: 37.79999923706055

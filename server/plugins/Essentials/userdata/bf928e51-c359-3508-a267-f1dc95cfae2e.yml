@@ -1,0 +1,38 @@
+teleportenabled: true
+teleportauto: false
+godmode: false
+muted: false
+jailed: false
+ip-address: 0:0:0:0:0:0:0:1
+afk: false
+socialspy: false
+npc: false
+powertoolsenabled: true
+accepting-pay: true
+baltop-exempt: false
+timestamps:
+  lastteleport: 0
+  lastheal: 0
+  mute: 0
+  jail: 0
+  onlinejail: 0
+  logout: 1764098372119
+  login: 1764098293153
+money: '0'
+last-account-name: MajesticSwift
+lastlocation:
+  world: a832ce7f-a7b6-47ad-b79c-355b03bfadf4
+  world-name: world
+  x: 0.30000001192092896
+  y: 54.0
+  z: 28.23652625857238
+  yaw: 0.0
+  pitch: 0.0
+logoutlocation:
+  world: a832ce7f-a7b6-47ad-b79c-355b03bfadf4
+  world-name: world
+  x: 1.3715470015552031
+  y: 77.0
+  z: 113.80531582071843
+  yaw: -63.445770263671875
+  pitch: 28.949708938598633

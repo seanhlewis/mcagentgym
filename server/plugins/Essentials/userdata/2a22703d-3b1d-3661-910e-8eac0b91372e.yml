@@ -1,0 +1,38 @@
+teleportenabled: true
+teleportauto: false
+godmode: false
+muted: false
+jailed: false
+ip-address: 127.0.0.1
+afk: false
+socialspy: false
+npc: false
+powertoolsenabled: true
+accepting-pay: true
+baltop-exempt: false
+timestamps:
+  lastteleport: 0
+  lastheal: 0
+  mute: 0
+  jail: 0
+  onlinejail: 0
+  logout: 1764047257728
+  login: 1764047072922
+money: '0'
+last-account-name: AliceBot
+lastlocation:
+  world: a832ce7f-a7b6-47ad-b79c-355b03bfadf4
+  world-name: world
+  x: 61.5
+  y: 71.0
+  z: -16.466664884983704
+  yaw: 99.47602844238281
+  pitch: -1.2664795212913305E-4
+logoutlocation:
+  world: a832ce7f-a7b6-47ad-b79c-355b03bfadf4
+  world-name: world
+  x: 58.13903250728763
+  y: 71.0
+  z: -17.535234689241697
+  yaw: -42.186767578125
+  pitch: 33.44971466064453

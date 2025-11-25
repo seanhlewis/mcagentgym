@@ -1,4 +1,5 @@
 import time
+import os
 import langchain
 # langchain.debug = True
 from langchain.agents import tool, initialize_agent, AgentType
@@ -15,12 +16,74 @@ import logging
 import datetime
 import threading
 from functools import wraps
-import os
 import random
 import platform
 
 env = os.environ.copy()
 env["PYTHONIOENCODING"] = "utf-8"
+
+# --- OpenAI compatibility patch: strip `encoding` kwarg and time calls ---
+try:
+    from openai import resources as _openai_resources  # type: ignore[attr-defined]
+
+    try:
+        # openai 1.x: resources.chat.completions.create
+        _chat_completions = getattr(_openai_resources, "chat").completions  # type: ignore[attr-defined]
+        _orig_chat_create = _chat_completions.create
+
+        def _patched_chat_create(self, *args, **kwargs):
+            kwargs.pop("encoding", None)
+            start = time.time()
+            try:
+                return _orig_chat_create(self, *args, **kwargs)
+            finally:
+                dur = time.time() - start
+                print(f"[LLM] chat.completions.create took {dur:.3f}s")
+
+        _chat_completions.create = _patched_chat_create  # type: ignore[assignment]
+        print("[INFO] Patched openai.resources.chat.completions.create to ignore 'encoding' kwarg.")
+    except Exception:
+        # Fallback for older import paths
+        from openai.resources.chat.completions import Completions as _Completions  # type: ignore
+
+        _orig_create = _Completions.create
+
+        def _patched_create(self, *args, **kwargs):
+            kwargs.pop("encoding", None)
+            start = time.time()
+            try:
+                return _orig_create(self, *args, **kwargs)
+            finally:
+                dur = time.time() - start
+                print(f"[LLM] Completions.create took {dur:.3f}s")
+
+        _Completions.create = _patched_create  # type: ignore[assignment]
+        print("[INFO] Patched openai.resources.chat.completions.Completions.create to ignore 'encoding' kwarg.")
+
+    # Also patch legacy ChatCompletion for safety
+    try:
+        import openai as _openai_mod  # type: ignore
+
+        if hasattr(_openai_mod, "ChatCompletion"):
+            _orig_legacy_create = _openai_mod.ChatCompletion.create
+
+            def _patched_legacy_create(*args, **kwargs):
+                kwargs.pop("encoding", None)
+                start = time.time()
+                try:
+                    return _orig_legacy_create(*args, **kwargs)
+                finally:
+                    dur = time.time() - start
+                    print(f"[LLM] ChatCompletion.create took {dur:.3f}s")
+
+            _openai_mod.ChatCompletion.create = _patched_legacy_create  # type: ignore[assignment]
+            print("[INFO] Patched openai.ChatCompletion.create to ignore 'encoding' kwarg.")
+    except Exception:
+        pass
+
+except Exception:
+    # If openai isn't available or layout is different, fail silently.
+    pass
 
 def filter_emoji(text: str) -> str:
     ret_str = []
@@ -165,25 +228,127 @@ class Agent():
 
     logging.basicConfig()
     logging.getLogger("langchain.retrievers.multi_query").setLevel(logging.INFO)
-    model = "gpt-4-1106-preview"
+    # Defaults; can be overridden via env or configure_llm
+    model = os.environ.get("VILLAGER_AGENT_MODEL", "gpt-4-1106-preview")
+    base_url = os.environ.get("VILLAGER_AGENT_BASE_URL", "https://api.openai.com/v1")
+    api_key_list = []
     temperature = 0
     max_tokens = 1024
-    api_key_list = []
-    base_url = "https://api.chatanywhere.tech/v1"
     verbose = True
+
+    # Execution limits
+    default_max_iterations = max(1, int(os.environ.get("VILLAGER_AGENT_MAX_ITERATIONS", "3")))
+    max_step_execution = max(5, int(os.environ.get("VILLAGER_AGENT_STEP_MAX_EXECUTION", "8")))
+    max_chain_execution = max(10, int(os.environ.get("VILLAGER_AGENT_CHAIN_MAX_EXECUTION", "20")))
 
     name2port = {}
     agent_process = {}
     url_prefix = {}
 
+    @classmethod
+    def configure_llm(cls, *, model=None, base_url=None, api_keys=None, max_iterations=None, max_execution_time=None):
+        if model is not None:
+            cls.model = model
+        if base_url is not None:
+            cls.base_url = base_url
+        if api_keys is not None:
+            cls.api_key_list = list(api_keys)
+        if max_iterations is not None:
+            cls.default_max_iterations = max(1, int(max_iterations))
+        if max_execution_time is not None:
+            # Applies to longer chains; per-step uses max_step_execution
+            cls.max_chain_execution = max(5, int(max_execution_time))
+
+    _url_prefix_lock = threading.Lock()  # Process-local lock for URL prefix operations
+    
+    @staticmethod
+    def _acquire_file_lock(lock_file_path, timeout=5.0):
+        """Acquire a cross-platform file lock using a lock file."""
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            try:
+                # Try to create lock file exclusively
+                lock_fd = os.open(lock_file_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                os.close(lock_fd)
+                return True
+            except (OSError, IOError):
+                # Lock file exists, wait and retry
+                time.sleep(0.1)
+        return False
+    
+    @staticmethod
+    def _release_file_lock(lock_file_path):
+        """Release a file lock by removing the lock file."""
+        try:
+            if os.path.exists(lock_file_path):
+                os.remove(lock_file_path)
+        except (OSError, IOError):
+            pass
+
     @staticmethod
     def get_url_prefix() -> dict:
-        if os.path.exists("data/url_prefix.json"):
-            with open("data/url_prefix.json", "r", encoding='utf-8') as f:
-                url_prefix = json.load(f)
-        else:
-            url_prefix = {}
-        return url_prefix
+        """Get URL prefix dictionary with file locking to prevent race conditions."""
+        url_prefix_file = "data/url_prefix.json"
+        lock_file = f"{url_prefix_file}.lock"
+        max_retries = 20
+        retry_delay = 0.1
+        
+        # Use process-local lock first
+        with Agent._url_prefix_lock:
+            for attempt in range(max_retries):
+                # Try to acquire file lock
+                if not Agent._acquire_file_lock(lock_file, timeout=1.0):
+                    if attempt < max_retries - 1:
+                        time.sleep(retry_delay)
+                        continue
+                    else:
+                        print(f"[WARN] Could not acquire lock for url_prefix.json, using empty dict")
+                        return {}
+                
+                try:
+                    if os.path.exists(url_prefix_file):
+                        with open(url_prefix_file, "r", encoding='utf-8') as f:
+                            content = f.read()
+                            if content.strip():
+                                # Try to parse JSON, handle corrupted files
+                                try:
+                                    url_prefix = json.loads(content)
+                                except json.JSONDecodeError as e:
+                                    # File might be corrupted, try to recover
+                                    print(f"[WARN] JSON decode error in url_prefix.json: {e}")
+                                    # Try to extract valid JSON from start
+                                    try:
+                                        # Find first complete JSON object
+                                        brace_count = 0
+                                        end_pos = 0
+                                        for i, char in enumerate(content):
+                                            if char == '{':
+                                                brace_count += 1
+                                            elif char == '}':
+                                                brace_count -= 1
+                                                if brace_count == 0:
+                                                    end_pos = i + 1
+                                                    break
+                                        if end_pos > 0:
+                                            url_prefix = json.loads(content[:end_pos])
+                                        else:
+                                            url_prefix = {}
+                                    except Exception:
+                                        url_prefix = {}
+                            else:
+                                url_prefix = {}
+                    else:
+                        url_prefix = {}
+                    return url_prefix
+                except (IOError, OSError) as e:
+                    if attempt < max_retries - 1:
+                        time.sleep(retry_delay)
+                        continue
+                    print(f"[WARN] Failed to read url_prefix.json: {e}")
+                    return {}
+                finally:
+                    Agent._release_file_lock(lock_file)
+        return {}
 
     def __init__(self, name, prefix=None, context=None, prompt=None, tools=[], local_port=5000, model=""):
         self.name = name
@@ -232,10 +397,76 @@ class Agent():
 
         if name == "nobody":
             return
-        url_prefix = Agent.get_url_prefix()
-        url_prefix[name] = f"http://localhost:{local_port}"
-        with open("data/url_prefix.json", "w", encoding='utf-8') as f:
-            json.dump(url_prefix, f)
+        url_prefix_file = "data/url_prefix.json"
+        lock_file = f"{url_prefix_file}.lock"
+        max_retries = 20
+        retry_delay = 0.1
+        
+        # Use process-local lock first
+        with Agent._url_prefix_lock:
+            for attempt in range(max_retries):
+                # Try to acquire file lock
+                if not Agent._acquire_file_lock(lock_file, timeout=1.0):
+                    if attempt < max_retries - 1:
+                        time.sleep(retry_delay)
+                        continue
+                    else:
+                        print(f"[ERROR] Could not acquire lock for url_prefix.json after {max_retries} attempts")
+                        raise IOError("Could not acquire file lock")
+                
+                try:
+                    # Ensure data directory exists
+                    os.makedirs("data", exist_ok=True)
+                    
+                    # Read existing data
+                    if os.path.exists(url_prefix_file):
+                        try:
+                            with open(url_prefix_file, "r", encoding='utf-8') as f:
+                                content = f.read()
+                                if content.strip():
+                                    url_prefix = json.loads(content)
+                                else:
+                                    url_prefix = {}
+                        except (json.JSONDecodeError, IOError):
+                            # File corrupted, start fresh
+                            url_prefix = {}
+                    else:
+                        url_prefix = {}
+                    
+                    # Update with new entry
+                    url_prefix[name] = f"http://localhost:{local_port}"
+                    
+                    # Write atomically using temp file
+                    temp_file = f"{url_prefix_file}.tmp.{os.getpid()}"
+                    try:
+                        with open(temp_file, "w", encoding='utf-8') as f:
+                            json.dump(url_prefix, f, indent=2)
+                            f.flush()
+                            os.fsync(f.fileno())
+                        # Atomic rename
+                        if platform.system() == "Windows":
+                            # On Windows, need to remove target first
+                            if os.path.exists(url_prefix_file):
+                                os.remove(url_prefix_file)
+                        os.rename(temp_file, url_prefix_file)
+                    except Exception as e:
+                        # Clean up temp file on error
+                        try:
+                            if os.path.exists(temp_file):
+                                os.remove(temp_file)
+                        except Exception:
+                            pass
+                        raise
+                    
+                    break  # Success, exit retry loop
+                except (IOError, OSError, json.JSONDecodeError) as e:
+                    if attempt < max_retries - 1:
+                        time.sleep(retry_delay)
+                        continue
+                    print(f"[ERROR] Failed to write url_prefix.json after {max_retries} attempts: {e}")
+                    raise
+                finally:
+                    Agent._release_file_lock(lock_file)
 
         Agent.name2port[name] = local_port
         if prefix is None:

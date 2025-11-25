@@ -34,23 +34,27 @@ class VillagerBench:
     - task_name: str, the name of the task
     - _virtual_debug: bool, whether the environment is in virtual debug mode
     '''
-    def __init__(self, env_type, task_id: int, dig_needed: bool, host: str = "0.0.0.0", port: int = 25565, max_task_num: int = 1, task_name: str = "test", _virtual_debug: bool = False):
-        self.env_type = env_type
+    def __init__(self, env_kind: int, task_id: int, dig_needed: bool, *, host: str = "0.0.0.0", port: int = 25565, task_name: str = "survival", base_port_start: int = 5000, max_turn_per_step: int = 7, clear_logs_on_init: bool = True, max_task_num: int = 1, _virtual_debug: bool = False):
+        self.env_kind = env_kind
+        self.env_type = env_kind  # Keep for backward compatibility
         self.task_id = task_id
+        self.dig_needed = dig_needed
         self.host = host
         self.port = port
         self.task_name = task_name
+        self.base_port = base_port_start
+        self.max_turn_per_step = max(1, int(max_turn_per_step))
+        self.clear_logs_on_init = clear_logs_on_init
         self.agent_pool = []
+        self.agent_map = {}  # Map agent_name -> agent for quick lookup
         self.log = {}
         self.reset_token()
         self.running = False
         self._virtual_debug = _virtual_debug
         self.logger = init_logger(name="Env", level=logging.DEBUG)
         self.max_task_num = max_task_num  # For puzzle
-        self.dig_needed = dig_needed  # For construction
         self.launch_time = None
         self.langchain_model = ""
-        self.base_port = 5000
         self.op_path = ""
         if not os.path.exists("data"):
             os.mkdir("data")
@@ -71,7 +75,7 @@ class VillagerBench:
             json.dump({"state": "idle"}, f)
         
         # 删除之前的log
-        if os.path.exists("logs"):
+        if self.clear_logs_on_init and os.path.exists("logs"):
             for file in os.listdir("logs"):
                 file_path = os.path.join("logs", file)
                 for _ in range(3):  # 尝试3次
@@ -272,6 +276,7 @@ class VillagerBench:
             if len(agent_tool) != 0:
                 agent.tool = agent_tool
             self.agent_pool.append(agent)
+            self.agent_map[agent.name] = agent  # Add to map for quick lookup
             self.log[agent.name] = []
 
     def launch(self, debug: bool = False, fast_api=False):
@@ -361,25 +366,36 @@ class VillagerBench:
         else:
             return {"message": "env not running", "status": False}
 
-    def step(self, agent_name: str, action: str, max_turn: int = 7):
-        '''
-        final_answer, {"input": response["input"], "action_list": action_list, "final_answer": final_answer}
-        '''
+    def step(self, agent_name: str, instruction: str, max_turn: int | None = None):
+        """
+        Execute a single 'tick' for the given agent. This wraps a LangChain agent
+        with a bounded number of tool steps per call.
+        """
+        step_turn = max_turn if max_turn is not None else self.max_turn_per_step
+        step_turn = max(1, int(step_turn))
+
+        # Make sure Agent.default_max_iterations is in sync with our per-step max
+        Agent.default_max_iterations = step_turn
+
+        # agent is your LangChain wrapper for this agent_name
+        if agent_name not in self.agent_map:
+            self.logger.warning(f"agent {agent_name} not found")
+            return None, {"input": None, "action_list": None, "final_answer": None}
+
+        agent = self.agent_map[agent_name]
+
         self.logger.debug("=" * 20 + " Env Step " + "=" * 20)
         self.logger.info(f"agent {agent_name}")
         self.logger.info("=" * 20 + " Env Step " + "=" * 20)
-        find_agent = False
-        for agent in self.agent_pool:
-            if agent.name == agent_name:
-                feedback, detail = agent.run(action, max_iterations=max_turn)
 
-                self.log[agent_name].append(detail)
+        # IMPORTANT: per-step agent must use Agent.max_step_execution
+        # Note: The agent.run method will use max_iterations from the call
+        # and max_execution_time should be set via Agent.max_step_execution
+        feedback, detail = agent.run(instruction, max_iterations=step_turn)
 
-                return feedback, detail
+        self.log[agent_name].append(detail)
 
-        if not find_agent:
-            self.logger.warning(f"agent {agent_name} not found")
-            return None, {"input": None, "action_list": None, "final_answer": None}
+        return feedback, detail
         
     def iter_step(self, agent_name: str, instruction: str, actions: [], observations: [], recommended_actions: []):
         '''

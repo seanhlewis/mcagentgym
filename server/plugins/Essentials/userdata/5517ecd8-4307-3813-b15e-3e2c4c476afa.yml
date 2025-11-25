@@ -1,0 +1,38 @@
+teleportenabled: true
+teleportauto: false
+godmode: false
+muted: false
+jailed: false
+ip-address: 127.0.0.1
+afk: false
+socialspy: false
+npc: false
+powertoolsenabled: true
+accepting-pay: true
+baltop-exempt: false
+timestamps:
+  lastteleport: 0
+  lastheal: 0
+  mute: 0
+  jail: 0
+  onlinejail: 0
+  logout: 1764056732533
+  login: 1764056525303
+money: '0'
+last-account-name: GraceBot_19049
+lastlocation:
+  world: a832ce7f-a7b6-47ad-b79c-355b03bfadf4
+  world-name: world
+  x: 23.698349043558547
+  y: 73.0
+  z: 13.370655959102153
+  yaw: 57.02048873901367
+  pitch: -5.142212030477822E-4
+logoutlocation:
+  world: a832ce7f-a7b6-47ad-b79c-355b03bfadf4
+  world-name: world
+  x: 20.500115646574862
+  y: 72.0
+  z: 10.5
+  yaw: 90.0204849243164
+  pitch: 89.9994888305664

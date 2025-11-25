@@ -1,0 +1,38 @@
+teleportenabled: true
+teleportauto: false
+godmode: false
+muted: false
+jailed: false
+ip-address: 127.0.0.1
+afk: false
+socialspy: false
+npc: false
+powertoolsenabled: true
+accepting-pay: true
+baltop-exempt: false
+timestamps:
+  lastteleport: 0
+  lastheal: 0
+  mute: 0
+  jail: 0
+  onlinejail: 0
+  logout: 1764063837420
+  login: 1764063695171
+money: '0'
+last-account-name: PatrickLP27
+lastlocation:
+  world: a832ce7f-a7b6-47ad-b79c-355b03bfadf4
+  world-name: world
+  x: 4.690032662226332
+  y: 77.0
+  z: 116.5092048858287
+  yaw: 173.12754821777344
+  pitch: -0.04495811462402344
+logoutlocation:
+  world: a832ce7f-a7b6-47ad-b79c-355b03bfadf4
+  world-name: world
+  x: 26.041922614639557
+  y: 55.75000000000009
+  z: 159.47075909730805
+  yaw: 168.38006591796875
+  pitch: 40.34954071044922

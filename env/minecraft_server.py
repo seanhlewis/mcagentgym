@@ -1,7 +1,21 @@
 import argparse
 import time
 from math import floor
-import names
+# import names
+
+# Try to use the 'names' package if available, otherwise fall back.
+try:
+    import names  # external package
+except ModuleNotFoundError:
+    class _NamesFallback:
+        @staticmethod
+        def get_full_name():
+            first = random.choice(["Alex", "Sam", "Riley", "Pat", "Lee", "Jordan"])
+            last = random.choice(["Smith", "Taylor", "Parker", "Morgan", "Bailey", "Davis"])
+            return f"{first} {last}"
+
+    names = _NamesFallback()
+
 from flask import Flask, request, jsonify
 from random import randint, choice
 from env_api import *
@@ -32,10 +46,10 @@ collectBlock = require('mineflayer-collectblock')
 pvp = require("mineflayer-pvp").plugin
 Vec3 = require("vec3")
 
-if system_type == 'linux':
-    minecraftHawkEye = require("minecrafthawkeye").default
-else:
-    minecraftHawkEye = require("minecrafthawkeye")
+# if system_type == 'linux':
+#     minecraftHawkEye = require("minecrafthawkeye").default
+# else:
+#     minecraftHawkEye = require("minecrafthawkeye")
 
 mineflayerViewer = require('prismarine-viewer').mineflayer
 Socks = require("socks5-client")
@@ -55,47 +69,43 @@ Item = require("prismarine-item")(bot.registry)
 bot.loadPlugin(pathfinder.pathfinder)
 bot.loadPlugin(collectBlock.plugin)
 bot.loadPlugin(pvp)
-bot.loadPlugin(minecraftHawkEye)
+# bot.loadPlugin(minecraftHawkEye)
 
 VISIBLE_ONLY = True # 是否只看到可见的方块 | False: 开金手指
 
 # 定义修饰器
+def _safe_event_dump():
+    """Return a snapshot of recent events, safely handling errors."""
+    try:
+        return info_bot.get_action_description_new()
+    except Exception:
+        return []
+
 def log_activity(bot):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            # 在函数执行前打印
-            # bot.chat(f"{bot.username} is going to do task: {func.__name__}")
             try:
-                # 执行函数
-                result = func(*args, **kwargs) # 这里可以增加更多的反馈信息
-                # 在函数执行后打印(\1\n@log)
-                # bot.chat(f"{bot.username} has done task: {func.__name__}")
-                return result
+                return func(*args, **kwargs)
             except Exception as e:
-                # 如果发生异常，打印异常信息
-                # bot.chat(f"{bot.username} Error in task: {func.__name__} - {str(e)}")
-                # raise e
-                global bot
-                # bot.chat(f"/tellraw {bot.username} Status Error in task: {func.__name__}: Try to restart the bot")
-                bot = mineflayer.createBot({
-                    "host": args.host,
-                    "port": args.port,
-                    'username': args.username.replace(' ', '_'),
-                    'checkTimeoutInterval': 600000,
-                    'auth': 'offline',
-                    'version': '1.19.2',
+                app.logger.exception("Route %s failed", func.__name__)
+                return jsonify({
+                    "message": f"{func.__name__} failed: {e}",
+                    "status": False,
+                    "new_events": _safe_event_dump(),
                 })
-                Item = require("prismarine-item")(bot.registry)
-
-                bot.loadPlugin(pathfinder.pathfinder)
-                bot.loadPlugin(collectBlock.plugin)
-                bot.loadPlugin(pvp)
-                bot.loadPlugin(minecraftHawkEye)
-                # 这里改成重新启动bot
-
+        wrapper.__name__ = func.__name__
         return wrapper
     return decorator
+
+@app.errorhandler(Exception)
+def handle_unexpected_error(error):
+    app.logger.exception("Unhandled exception: %s", error)
+    return jsonify({
+        "message": f"Internal error: {error}",
+        "status": False,
+        "new_events": _safe_event_dump(),
+    }), 500
 
 @app.route('/post_ping', methods=['GET'])
 @log_activity(bot)
@@ -373,6 +383,7 @@ def find():
                 pos_data.append({"x": floor(pos.x + .5), "y": floor(pos.y + .5), "z": floor(pos.z + .5)})
         observation += str_pos_list
         done = True
+        info_bot.mark_agent_action(info_bot.existing_time)
         events = info_bot.get_action_description_new()
         return jsonify({'message': observation, 'status': done, 'data':pos_data, "new_events": events})
     else:
@@ -436,6 +447,8 @@ def move_to_pos():
     tag2, msg2 = move_to(pathfinder, bot, Vec3, 2, Vec3(x, y, z))
     tag3, msg3 = move_to(pathfinder, bot, Vec3, 1, Vec3(x, y, z))
     # lookAtPlayer(bot, entity['position'])
+    if tag2:
+        info_bot.mark_agent_action(info_bot.existing_time)
     events = info_bot.get_action_description_new()
     return jsonify({'message': msg2, 'status': tag2, "new_events": events})
 
@@ -505,6 +518,8 @@ def dig():
     data = request.get_json()
     x, y, z = data.get('x'), data.get('y'), data.get('z')
     msg, tag = dig_at(bot, pathfinder, Vec3, (x, y, z))
+    if tag:
+        info_bot.mark_agent_action(info_bot.existing_time)
     events = info_bot.get_action_description_new()
     return jsonify({'message': msg, 'status': tag, "new_events": events})
 
@@ -580,6 +595,8 @@ def place():
         bot.setControlState('jump', True)
         time.sleep(.3)
         bot.setControlState('jump', False)
+    if flag:
+        info_bot.mark_agent_action(info_bot.existing_time)
     events = info_bot.get_action_description_new()
     return jsonify({'message': msg, 'status': flag, "new_events": events})
 
@@ -593,6 +610,8 @@ def attack_():
     name = data.get('name')
     envs_info = get_envs_info(bot, 128)
     msg, tag = asyncio.run(attack(bot, envs_info, mcData, name))
+    if tag:
+        info_bot.mark_agent_action(info_bot.existing_time)
     events = info_bot.get_action_description_new()
     return jsonify({'message': msg, 'status': tag, "new_events": events})
 
@@ -619,6 +638,8 @@ def equip_():
         else:
             msg, done = equip(bot, item_name, slot)
             observation += msg
+            if done:
+                info_bot.mark_agent_action(info_bot.existing_time)
             events = info_bot.get_action_description_new()
             return jsonify({'message': observation, 'status': done, 'data': value_data, "new_events": events})
     except:
@@ -774,6 +795,8 @@ def craft():
     envs_info = get_envs_info(bot, 128)
     tag, flag, data = asyncio.run(
         interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, 3, 'crafting_table', get_item_name=item_name, count=count))
+    if flag:
+        info_bot.mark_agent_action(info_bot.existing_time)
     events = info_bot.get_action_description_new()
     return jsonify({'message': tag, 'status': flag, 'data': data, "new_events": events})
 
@@ -1577,14 +1600,36 @@ def handleViewer(*args):
 
 @On(bot, "time")
 def handle(this):
-    # bot.chat("time")
+    # Called every game tick
     info_bot.update_time()
-    with open(".cache/load_status.cache", "r", encoding='utf-8') as f:
-        status_data = json.load(f)
-    if status_data["status"] == "loaded" and info_bot.bot_init:
-        info_bot.follow()
-        info_bot.update_blocks()
-        info_bot.bot_init = False
+
+    # Occasional tick debug to ensure handler is firing
+    if info_bot.existing_time % 100 == 0:
+        print(f"[TIME] tick {info_bot.existing_time} for {bot.entity.username}")
+
+    try:
+        with open(".cache/load_status.cache", "r", encoding='utf-8') as f:
+            status_data = json.load(f)
+        if status_data.get("status") == "loaded" and info_bot.bot_init:
+            info_bot.follow()
+            info_bot.update_blocks()
+            info_bot.bot_init = False
+    except FileNotFoundError:
+        # In simple runs (like tiny_start.py) this cache file doesn't exist – that's fine.
+        pass
+    except Exception as e:
+        # Don't crash the whole bot if something goes wrong here
+        print("time handler error:", e)
+
+    # Idle movement
+    try:
+        idle_age = info_bot.existing_time - getattr(info_bot, "last_action_time", 0)
+        if info_bot.idle_direction and info_bot.existing_time >= info_bot.idle_move_until:
+            info_bot.stop_idle_motion()
+        if idle_age > IDLE_MOVE_THRESHOLD and info_bot.idle_direction is None:
+            info_bot.start_idle_motion()
+    except Exception as e:
+        print("idle movement error:", e)
 
     # if info_bot.existing_time % 10 == 0:
     #     new_events = info_bot.get_action_description_new()
@@ -1599,6 +1644,32 @@ class Bot():
         self.sleeping = False
         self.bot_init = False
         self.block_map = {}
+        self.last_action_time = 0
+        self.idle_direction = None
+        self.idle_move_until = 0
+
+    def mark_agent_action(self, t):
+        # Call this only for *tool* actions
+        self.last_action_time = t
+        self.stop_idle_motion()
+
+    def start_idle_motion(self):
+        import random
+        if self.idle_direction is not None:
+            return
+        directions = ["forward", "back", "left", "right"]
+        direction = random.choice(directions)
+        self.idle_direction = direction
+        self.idle_move_until = self.existing_time + 20  # ~1s at 20 tps
+        print(f"[IDLE] {bot.entity.username} start idle move {direction} until {self.idle_move_until}")
+        bot.setControlState(direction, True)
+
+    def stop_idle_motion(self):
+        if self.idle_direction:
+            print(f"[IDLE] {bot.entity.username} stop idle move {self.idle_direction}")
+            bot.setControlState(self.idle_direction, False)
+            self.idle_direction = None
+            self.idle_move_until = 0
 
     def update_blocks(self):
         # bot.chat("update blocks")
@@ -1683,18 +1754,21 @@ class Bot():
 
     def get_5x3x5_map(self):
         # 获取3x3的地图, 第一个是方块的名字, 第二个是方块的相对高度
-        map_5x3x5 = []
+        local_map = []
         for i in range(-2, 3):
-            for k in range(-2, 3):
-                for j in range(-1, 2):
-                    block = bot.blockAt(bot.entity.position.offset(i, j, k))
+            for j in range(-1, 2):
+                for k in range(-2, 3):
+                    pos = bot.entity.position.offset(i, j, k)
+                    block = bot.blockAt(pos)
+                    if block is None:
+                        continue  # skip empty or unloaded blocks
                     block_name = block.name
                     if block_name == "air":
                         continue
                     block_pos = f"{block.position.x} {block.position.y} {block.position.z}"
-                    map_5x3x5.append((block_name, block_pos))
+                    local_map.append((block_name, block_pos))
 
-        return map_5x3x5
+        return local_map
 
     def get_action_description_new(self):
         new_actions = []

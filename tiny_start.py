@@ -10,18 +10,18 @@ import json
 if __name__ == "__main__":
 
     # Set Environment
-    env = VillagerBench(env_type.none, task_id=0, _virtual_debug=False, dig_needed=False, host="10.214.180.148")
+    env = VillagerBench(env_type.none, task_id=0, _virtual_debug=False, dig_needed=False, host="127.0.0.1", port=25565)
 
     # Set Agent
     api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"] # use OPENAI as an example
-    base_url = "https://api.chatanywhere.tech/v1"
+    base_url = "https://api.openai.com/v1"
     llm_config = {
         "api_model": "gpt-4o-mini", # for example, "gpt-4-1106-preview"
         "api_base": base_url, # for example, "https://api.openai.com/v1"
         "api_key_list": api_key_list
     }
 
-    Agent.model = "gpt-4-1106-preview"
+    Agent.model = llm_config["api_model"] #"gpt-4-1106-preview"
     Agent.base_url = base_url
     Agent.api_key_list = api_key_list
 
@@ -48,7 +48,7 @@ if __name__ == "__main__":
         ctrl = GlobalController(llm_config, tm, dm, env)
 
         # Set Task
-        tm.init_task("Alice talk with yubo", {})
+        tm.init_task("Alice talk with Tigerish", {})
 
         # Run Controller
         ctrl.run()

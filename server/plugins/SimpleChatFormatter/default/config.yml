@@ -1,0 +1,81 @@
+DOCUMENTATION: https://annoying-api.srnyx.com/wiki/File-objects
+
+
+# If false, the plugin won't attempt to format the chat at all, useful if you just want to use the other features
+# DISABLING THIS WILL ALSO DISABLE: disable-chat-reporting, filter
+enable-format: true
+# PlaceholderAPI placeholders and formatting codes are supported
+# The only default placeholders are %player% and %message%
+format: "&a%player% &8>&r %message%"
+
+# 1.19.1+ Remove the ability for people to report other player's messages
+# This may break other chat plugins, if you need it to not break them, let me know here: https://github.com/srnyx/simple-chat-formatter/issues/new/choose
+disable-chat-reporting: false
+
+# A simple broadcast system with a few extra features
+broadcast:
+  # If enabled, a title of the broadcast will be sent to all players when one is sent
+  title:
+    enabled: true
+
+    # The fade-in time for the title
+    fade-in: 0
+    # The stay time for the title
+    stay: 50
+    # The fade-out time for the title
+    fade-out: 10
+
+    # If enabled, the broadcast will be "typed out" letter by letter in the title
+    typing:
+      enabled: true
+      # The delay (in ticks [20 ticks = 1 second]) between each letter being typed out
+      delay: 2
+      # Set volume to 0 to disable
+      sound: # SOUND (see docs)
+        sound: UI_BUTTON_CLICK
+        volume: 1
+        pitch: 2
+
+  # Options for sending broadcasts to Discord using DiscordSRV
+  discord:
+    enabled: true
+    # The DiscordSRV channel to send broadcasts to (see 'Channels' in DiscordSRV's config.yml)
+    channel: global
+
+# A simple chat spam filter with a few different modes
+# If a player has the chat.spam.bypass permission, they won't be affected by the filter
+spam:
+  speed:
+    # Whether to filter messages sent too quickly
+    enabled: false
+    # The amount of messages that can be sent in the spam.time before the player's messages are deleted
+    messages: 2
+    # The amount of seconds that the player has to send spam.messages messages before their messages are deleted
+    time: 1 # seconds
+
+  similarity:
+    # Whether to filter messages that are too similar to the previous message
+    enabled: false
+    # How similar a message has to be to the previous message to be considered spam
+    # 0-100, 0 being not similar at all, 100 being exactly the same
+    percent: 75
+
+# A simple chat/word filter with a few different modes (to disable, set filter.list to [])
+# If a player has the chat.filter.bypass permission, they won't be affected by the filter
+filter:
+  # The mode that the filter will use
+  # disable: Disables the word filter
+  # delete: Deletes/hides the message for everyone, sending an error ('delete' in messages.yml) to the player
+  # shadow: Deletes/hides the message for everyone except the player
+  # censor: Replaces the filtered words' letters with the filter.censor-replacement value
+  mode: disable
+
+  # The replacement to use for each filtered word letter when filter.mode is set to censor
+  # This can only be one character, if it isn't, it'll only use the first character
+  censor-replacement: "#"
+
+  # The list of words that will be filtered (case-insensitive, alphanumeric only)
+  list:
+    - badword1
+    - badword2
+    - badword3

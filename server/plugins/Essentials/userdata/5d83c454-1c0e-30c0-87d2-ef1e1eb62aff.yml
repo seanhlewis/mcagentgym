@@ -1,0 +1,38 @@
+teleportenabled: true
+teleportauto: false
+godmode: false
+muted: false
+jailed: false
+ip-address: 127.0.0.1
+afk: false
+socialspy: false
+npc: false
+powertoolsenabled: true
+accepting-pay: true
+baltop-exempt: false
+timestamps:
+  lastteleport: 0
+  lastheal: 0
+  mute: 0
+  jail: 0
+  onlinejail: 0
+  logout: 1764048639614
+  login: 1764048226999
+money: '0'
+last-account-name: MinerBot_88994
+lastlocation:
+  world: a832ce7f-a7b6-47ad-b79c-355b03bfadf4
+  world-name: world
+  x: -2.3687200575616525
+  y: 54.0
+  z: 10.52269773735138
+  yaw: 93.53707885742188
+  pitch: -0.044940948486328125
+logoutlocation:
+  world: a832ce7f-a7b6-47ad-b79c-355b03bfadf4
+  world-name: world
+  x: 4.495665056115631
+  y: 61.0
+  z: 8.7
+  yaw: -8.6129150390625
+  pitch: -0.044940948486328125

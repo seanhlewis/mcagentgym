@@ -1,0 +1,38 @@
+teleportenabled: true
+teleportauto: false
+godmode: false
+muted: false
+jailed: false
+ip-address: 127.0.0.1
+afk: false
+socialspy: false
+npc: false
+powertoolsenabled: true
+accepting-pay: true
+baltop-exempt: false
+timestamps:
+  lastteleport: 0
+  lastheal: 0
+  mute: 0
+  jail: 0
+  onlinejail: 0
+  logout: 1764062563507
+  login: 1764062240845
+money: '0'
+last-account-name: Splatcat2013
+lastlocation:
+  world: a832ce7f-a7b6-47ad-b79c-355b03bfadf4
+  world-name: world
+  x: -25.10205169158194
+  y: 65.85489329934836
+  z: 154.79866637312105
+  yaw: 60.78386688232422
+  pitch: 29.69940757751465
+logoutlocation:
+  world: a832ce7f-a7b6-47ad-b79c-355b03bfadf4
+  world-name: world
+  x: -4.7
+  y: 54.0
+  z: 35.7
+  yaw: 13.050000190734863
+  pitch: -2.8499999046325684
