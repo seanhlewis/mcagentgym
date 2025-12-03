@@ -1,386 +1,132 @@
-# 🏰 VillagerAgent: A Graph-Based Multi-Agent Framework for Coordinating Complex Task Dependencies in Minecraft 🌍
+# 🎭 Artificial Social Environments: Human Perception of AI Agents in Minecraft
 
-<img src="img/VillagerBench.png" width="100%" /> 
-
-<!-- <style>
-.showcase-table {
-    width: 100%;
-    border-spacing: 10px;
-    border-collapse: separate;
-}
-
-.showcase-cell {
-    width: 25%;
-    padding: 10px;
-    background: #f5f5f5;
-    border-radius: 8px;
-    transition: transform 0.2s;
-}
-
-.showcase-cell:hover {
-    transform: scale(1.02);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.showcase-image {
-    width: 256px;
-    height: 256px;
-    object-fit: cover;
-    border-radius: 4px;
-    margin-bottom: 8px;
-}
-
-.showcase-title {
-    font-size: 14px;
-    color: #333;
-    margin-top: 8px;
-    font-weight: 500;
-}
-</style> -->
-
-<table class="showcase-table">
-    <tr>
-        <td class="showcase-cell" align="center">
-            <img src="img/fishing.png" class="showcase-image" /><br>
-            <sub class="showcase-title">Fishing</sub>
-        </td>
-        <td class="showcase-cell" align="center">
-            <img src="img/build.png" class="showcase-image" /><br>
-            <sub class="showcase-title">Building</sub>
-        </td>
-        <td class="showcase-cell" align="center">
-            <img src="img/cart.png" class="showcase-image" /><br>
-            <sub class="showcase-title">Driving</sub>
-        </td>
-        <td class="showcase-cell" align="center">
-            <img src="img/conversition.png" class="showcase-image" /><br>
-            <sub class="showcase-title">Talking</sub>
-        </td>
-    </tr>
-    <tr>
-        <td class="showcase-cell" align="center">
-            <img src="img/farm.png" class="showcase-image" /><br>
-            <sub class="showcase-title">Farming</sub>
-        </td>
-        <td class="showcase-cell" align="center">
-            <img src="img/feed.png" class="showcase-image" /><br>
-            <sub class="showcase-title">Feeding</sub>
-        </td>
-        <td class="showcase-cell" align="center">
-            <img src="img/grow.png" class="showcase-image" /><br>
-            <sub class="showcase-title">Cultivate</sub>
-        </td>
-        <td class="showcase-cell" align="center">
-            <img src="img/saddle.png" class="showcase-image" /><br>
-            <sub class="showcase-title">Holding</sub>
-        </td>
-    </tr>
-    <tr>
-        <td class="showcase-cell" align="center">
-            <img src="img/ride.png" class="showcase-image" /><br>
-            <sub class="showcase-title">Riding</sub>
-        </td>
-        <td class="showcase-cell" align="center">
-            <img src="img/seed.png" class="showcase-image" /><br>
-            <sub class="showcase-title">Seeding</sub>
-        </td>
-        <td class="showcase-cell" align="center">
-            <img src="img/store.png" class="showcase-image" /><br>
-            <sub class="showcase-title">Storing</sub>
-        </td>
-        <td class="showcase-cell" align="center">
-            <img src="img/sleep.png" class="showcase-image" /><br>
-            <sub class="showcase-title">Sleeping</sub>
-        </td>
-    </tr>
-</table>
+<img width="1650" height="400" alt="specbanner1650400" src="https://github.com/user-attachments/assets/72d313d8-e75e-4e61-9f0c-e098ccd506a8" />
 
 
-We aim to investigate the interactions between agents within the Minecraft environment and their collaboration with human players. Concurrently, we will explore the capabilities of Large Language Models (LLMs) in task decomposition and cooperation.
-
-Welcome to VillagerBench, where the blocky world of Minecraft isn't just for fun and games—it's a testing ground for the cutting-edge of multi-agent collaboration! 🤖 Our benchmark suite is designed to push the boundaries of what virtual agents can achieve together, tackling everything from construction projects 🏗️ to culinary quests 🍳 and escape room puzzles 🔐.
-
-Customize your private tasks in your Minecraft server with our VillagerAgent multi-agent framework, designed for personalized gameplay experiences! 🌟 
-点击此处查看 [中文版 README](READMEzh.md)。
-クリックして [README](README.md) をご覧ください。
 <p align="center">
-    <a href='https://arxiv.org/abs/2406.05720'>
-      <img src='https://img.shields.io/badge/Paper-PDF-green?style=for-the-badge&logo=arXiv&logoColor=green' alt='Paper PDF'>
-    </a>
-    <a href='https://cnsdqd-dyb.github.io/VillagerAgent.github.io/2024/04/01/VillagerAgent.html'>
-      <img src='https://img.shields.io/badge/Project-Page-blue?style=for-the-badge&logo=Web&logoColor=white' alt='Project Page'>
-    </a>
+    <img src='https://img.shields.io/badge/Minecraft-1.19.2-green?style=for-the-badge&logo=minecraft' alt='Minecraft'>
+    <img src='https://img.shields.io/badge/Python-3.8+-blue?style=for-the-badge&logo=python' alt='Python'>
+    <img src='https://img.shields.io/badge/Agents-Voyager%20Based-orange?style=for-the-badge' alt='Agents'>
 </p>
+
+
+
+## Overview
+
+Can humans tell when they are the only real person in a digital world? 
+
+This project investigates the **"Truman Show" effect** in Minecraft. We created a controlled Survival Multiplayer (SMP) server populated entirely by AI agents to test if human players can detect the artificial nature of their social environment. By integrating **Large Language Models (LLMs)** with **embodied agents**, we simulate a living, breathing server where agents build, craft, chat, and react to suspicion.
+
+<img width="3616" height="1184" alt="spec_final_workflow_whitebg" src="https://github.com/user-attachments/assets/fb3b99c5-f4ec-4a4e-a36b-b32f361b3574" />
 
 ---
 
-## News
-\[2024.12.18\] We've added new attributes. VillagerBaseAgent LLM 8b v1 will be released soon.
+## 🧠 System Architecture
 
-\[2024.12.11\] Support LLM api ranking with PPO method.
+Our framework coordinates complex task dependencies and social interactions through four main components:
 
-\[2024.12.08\] LLM driven AutoGen task to get data for Agent-tuning.
+1.  **Modified Voyager Agents:** Embodied agents capable of open-ended exploration and skill acquisition.
+2.  **Social Behavior Layer:**
+    * **Personas:** Distinct personality traits (e.g., "Risk-taking Explorer," "Cautious Builder").
+    * **Emotional Mimicry:** Sentiment analysis to react appropriately to player deaths or achievements (e.g., typing "RIP" or "gg").
+    * **Suspicion Handling:** Specialized prompts to deflect accusations of being a "bot" via humor or topic shifting.
+3.  **Server Plugin:** A custom Java plugin that logs events (proximity, interactions) and routes chat to the agent backend.
+4.  **Multi-Agent Controller:** Orchestrates the group to ensure the server feels populated and active.
 
-<table> <tr> <td><img src="img/chat.png" width="100%" /></td> <td><img src="img/chat2.png" width="100%" /></td> </tr> <tr> <td><img src="img/chat3.png" width="100%" /></td> <td><img src="img/chat4.png" width="100%" /></td> </tr> </table>
+---
 
-\[2024.12.01\] \[Human -- Agent\]  \[Agent -- Agent\] Real Time Chat supports now!!!🎉
+## 📊 Key Findings
 
-<table> <tr> <td><img src="img/autogen1.png" width="100%" /></td> <td><img src="img/autogen2.png" width="100%" /></td> </tr>  </table> 
+In our pilot study with ~10 participants:
+* **Detection Failure:** Only **2/10** participants correctly identified that *all* other players were AI.
+* **The "Mixed" Illusion:** Most players believed they were in a mixed server of humans and bots.
+* **Behavioral Cues:** "Pathfinding glitches" triggered suspicion, while **emotional responsiveness** (reacting to chat/events) significantly increased perceived realism.
 
-\[2024.10.23\] We are trying to replace the LLM in VillagerAgent with finetuned open source LLMs to improve the performance and efficiency of the agent's task execution.
+---
 
-\[2024.10.04\] 🎉Our minecraft multi-agent framework VillagerAgent has been accepted by ACL 2024.
-## Setup and Configuration 🛠️
+## 🛠️ Setup and Configuration
 
 ### Requirements
-- **Python Version**: Python 3.8 or newer installed on your system.
-- **API Keys**: Obtain API keys from one or more of the following services:
-  - OpenAI (for access to models like GPT-4)
-  - Google Cloud (for access to models like Gemini)
-  - Zhipu AI (for access to GLM models)
-- **NPM Package**: Node Package Manager (npm) installed, which is typically included with Node.js：
-  ```python
-  python js_setup.py
-  ```
-- **Minecraft Server**: If you want to know how to configure the Minecraft 1.19.2 server, please see the [tutorial here](#minecraft-1192-server-setup).
-- **Python Dependencies**: Install all necessary Python libraries as specified in the `requirements.txt` file. You can install these dependencies using the following command:
-  ```
-  pip install -r requirements.txt
-  ```
-- **Other Model Choice**: You have the option to use models from Hugging Face's Transformers library. Ensure you have the necessary credentials to use and download the model.
+* **Python 3.8+**
+* **Node.js & npm** (for the Mineflayer interface)
+* **Minecraft Java Edition 1.19.2**
+* **API Keys:** OpenAI (GPT-4 recommended for best social improvisation).
 
 ### Installation Steps
-1. Clone the repository 📦:
-   ```bash
-   git clone https://github.com/cnsdqd-dyb/VillagerAgent.git
-   ```
-2. Opt for a virtual environment 🧹:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows, try venv\Scripts\activate
-   ```
-3. Install the dependencies 🧑‍🍳:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Set up your API key 🗝️:
-   - Craft a file named `API_KEY_LIST` and inscribe your API key in this way:
-   ```json
-   {
-      "OPENAI":["put your openai key here", ...],
-      "GEMINI":[...],
-      "GLM":[...],
-      ...
-   }
-   ```
-   - We might try calling multiple available APIs to break through the access limit.
-   - Place this file in the root of the project directory.
 
-## QuickStart 🚀
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/seanhlewis/mcagentgym.git
+    cd artificial-social-env
+    ```
 
-```python
-from env.env import VillagerBench, env_type, Agent
-from pipeline.controller import GlobalController
-from pipeline.data_manager import DataManager
-from pipeline.task_manager import TaskManager
-import json
+2.  **Set up Virtual Environment:**
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # Windows: venv\Scripts\activate
+    pip install -r requirements.txt
+    ```
 
-if __name__ == "__main__":
+3.  **Install Node Dependencies:**
+    ```bash
+    npm install
+    ```
 
-    # 🌍 Set Environment
-    env = VillagerBench(env_type.construction, task_id=0, _virtual_debug=False, dig_needed=False)
-
-    # 🤖 Set Agent
-    api_key_list = json.load(open("API_KEY_LIST", "r"))["OPENAI"]  # 🗝️ Use OPENAI as an example
-    base_url = "base url of the model"
-    llm_config = {
-        "api_model": "fill in the model name here",  # For example, "gpt-4-1106-preview"
-        "api_base": base_url,  # 🔗 For example, "https://api.openai.com/v1"
-        "api_key_list": api_key_list
+4.  **Configure Keys:**
+    Create a `keys.json` file in the root directory:
+    ```json
+    {
+       "OPENAI_API_KEY": "your_key_here"
     }
+    ```
 
-    Agent.model = "fill in the agent model name here"  # 🛠️ Customize your agent model
-    Agent.base_url = base_url
-    Agent.api_key_list = api_key_list
+---
 
-    # 🔨 More agent tools can be added here - refer to the agent_tool in doc/api_library.md
-    agent_tool = [Agent.fetchContainerContents, Agent.MineBlock, ..., Agent.handoverBlock]
+## 🎮 Minecraft Server Setup (1.19.2)
 
-    # 📝 Register Agent
-    env.agent_register(agent_tool=agent_tool, agent_number=3, name_list=["Agent1", "Agent2", "Agent3"])  # Ensure the agent number matches the agent_tool
-    # ⚠️ Use /op to give the agent permission to use commands on the Minecraft server, e.g., /op Agent1
+To run the experiment, you must host a local Minecraft server.
 
-    # 🏃‍♂️ Run Environment
-    with env.run():
-        
-        # Set Data Manager
-        dm = DataManager(silent=False)
-        dm.update_database_init(env.get_init_state())
+### 1. Preparation
+* Ensure **Java 17+** is installed (`java -version`).
+* Download the **server jar** for 1.19.2.
 
-        # Set Task Manager
-        tm = TaskManager(silent=False)
+### 2. Configuration
+1.  Create a folder named `server` and place the `.jar` file inside.
+2.  Run the server once to generate files:
+    ```bash
+    java -Xmx4G -Xms4G -jar server.jar nogui
+    ```
+3.  Open `eula.txt` and set `eula=true`.
+4.  **Crucial Step:** Open `server.properties` and ensure the following:
+    * `online-mode=false` (If testing locally without auth).
+    * `difficulty=normal`
+    * `gamemode=survival`
+    * `server-port=25565`
 
-        # Set Controller
-        ctrl = GlobalController(llm_config, tm, dm, env)
+### 3. Running the Simulation
+1.  Start the Minecraft Server.
+2.  In a separate terminal, launch the Agent Controller:
+    ```bash
+    python main.py
+    ```
+3.  Join the server via Minecraft Client at `localhost:25565`.
 
-        # Set Task
-        tm.init_task("Write your task description here.", json.load(open("your json task related file here if any.")))
+---
 
-        # 🚀 Run Controller
-        ctrl.run()
-```
+## 🤝 Contribution & License
 
-### Batch Testing 🧪
-- Whip up test configs with `config.py` 📝.
-- Kick off automated batch testing with `start with config.py` 🤖.
+Contributions are welcome! Please focus on improving the **suspicion detection logic** or adding **long-term memory** modules.
 
+This project is licensed under the [MIT License](LICENSE).
 
-### Docker 🐳
-- Build your Docker image with `docker build -t VillagerAgent .` 🏗.
-- Launch the Docker container with `docker run VillagerAgent` 🚀.
-- Note: If you need to open specific ports for API connectivity, you may need to modify the Dockerfile accordingly and launch with `docker run -p <your_port>:<app_port> VillagerAgent` 🌐.
+---
 
-## Overview 📜
+### Acknowledgements
 
-### VillagerBench
-Dive into VillagerBench, powered by Mineflayer, to explore the dynamics of cooperative AI. Our agents don't just play—they learn 🎓, adapt 🔄, and work together to overcome challenges that would stump the lone wolf 🐺.
+This project builds upon the incredible work of the open-source community.
+* **Base Framework:** Adapted from **VillagerBench** for multi-agent coordination.
+* **Agent Logic:** Built using **Voyager** and **MineDojo** for embodied control and skill learning.
 
-<img src="img/benchmark.png" width="55%" /> 
-<img src="img/radar.png" width="43.2%" /> 
-
-### VillagerAgent Framework
-Meet VillagerAgent, our multi-agent maestro 🎼, orchestrating a symphony of tasks with its four core components: Task Decomposer, Agent Controller, State Manager, and Base Agents. It's like a conductor for AI, turning individual actions into a masterpiece of collaboration.
-
-<img src="img/framework.png" width="100%" /> 
-
-## Core Components 🌟
-
-- **VillagerBench**: The virtual sandbox where agents interact and learn 🤹.
-- **TaskManager**: The master planner, keeping tasks on track and agents in the know 📊.
-- **DataManager**: The keeper of knowledge, holding all the data cards close to its chest 🗃️.
-- **GlobalController**: The overseer, ensuring every agent plays their part to perfection 🎯.
-
-
-## npm Installation
-### Windows
-
-1. **Download the Node.js Installer**:
-   - Visit the [Node.js official website](https://nodejs.org/).
-   - Download the latest stable version of the Node.js installer for Windows (the LTS version is usually recommended).
-
-2. **Run the Installer**:
-   - Double-click the downloaded installer file.
-   - Follow the instructions provided by the installation wizard. Make sure to include all necessary components, including npm, during the installation process.
-
-3. **Verify Installation**:
-   - Open Command Prompt or PowerShell.
-   - Enter the following commands to check the versions of Node.js and npm:
-     ```
-     node -v
-     npm -v
-     ```
-   - If the installation was successful, you will see the version numbers of Node.js and npm displayed.
-
-### Linux (Debian/Ubuntu-based)
-
-1. **Install Using Package Manager**:
-   - Open the terminal.
-   - First, update your package index:
-     ```
-     sudo apt update
-     ```
-   - Install Node.js and npm:
-     ```
-     sudo apt install nodejs npm
-     ```
-
-2. **Install Using nvm** (Node Version Manager, recommended for managing multiple versions of Node.js):
-   - Open the terminal.
-   - Install nvm by running:
-     ```
-     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-     ```
-   - Restart the terminal or run the following command to update the current session:
-     ```
-     export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-     ```
-   - Install Node.js using nvm (this will also install npm):
-     ```
-     nvm install node
-     ```
-
-3. **Verify Installation**:
-   - Type the following commands to check the versions of Node.js and npm:
-     ```
-     node -v
-     npm -v
-     ```
-   - If the installation was successful, you will see the version numbers of Node.js and npm displayed.
-
-
-## Minecraft 1.19.2 Server Setup
-### Preparation
-
-1. **Ensure Java is Installed**: Minecraft servers require the Java runtime environment. Make sure you have the latest version of Java installed on your computer. You can check if Java is installed by running `java -version` in the command line.
-
-2. **Download Server File**: Visit the official Minecraft website to download the 1.19.2 version of the server file (`minecraft_server.1.19.2.jar`).
-
-### Configuring the Server
-
-1. **Create a Server Folder**: Choose a location on your computer to create a new folder that will hold all the Minecraft server files.
-
-2. **Move Server File**: Move the downloaded server file (`minecraft_server.1.19.2.jar`) into the folder you created.
-
-3. **Run the Server**:
-   - Open the command line interface.
-   - Navigate to the folder containing the server file using the `cd` command.
-   - Run the following command to start the server:
-     ```
-     java -Xmx1024M -Xms1024M -jar minecraft_server.1.19.2.jar nogui
-     ```
-   - The `-Xmx1024M` and `-Xms1024M` parameters set the maximum and initial memory allocation for the server in megabytes (MB). You may need to adjust these values based on your server's hardware.
-
-4. **Accept the EULA**: The first time you run the server, a file named `eula.txt` will be generated. Open this file and change `eula=false` to `eula=true` to accept the Minecraft End User License Agreement.
-
-5. **Restart the Server**: Run the `java` command again to start the server.
-
-### Configuring Server Properties
-
-1. **Edit the `server.properties` File**: After the first server run, a configuration file named `server.properties` will be generated. You can edit this file to customize the server settings, such as game mode, difficulty, etc. If you are testing the capabilities of multiple agents on VillagerBench, set the mode to peaceful and the terrain to superflat.
-
-2. **Port Forwarding**: If you want other players to be able to access your server from outside networks, you may need to set up port forwarding on your router. By default, the Minecraft server uses port 25565.
-
-3. **Start and Test the Server**: After completing all the settings, restart the server and try connecting to it to ensure everything is running smoothly.
-
-### Important Notes
-
-- Ensure that any agents that may join the server have been granted admin privileges (you can add permissions with the command `/op agent_name`).
-- Make sure your server's firewall rules allow the port used by the Minecraft server.
-- Regularly back up your server files to prevent data loss.
-- Keep the server's Java version up to date for optimal performance and security.
-
-The steps above provide a basic tutorial for setting up a Minecraft server. Depending on your specific needs and configuration, more advanced settings may be required.
-
-## Citation
-🌟 If you find our work helpful, please leave us a star and cite our paper.
-```
-@inproceedings{dong2024villageragent,
-  title={VillagerAgent: A Graph-Based Multi-Agent Framework for Coordinating Complex Task Dependencies in Minecraft},
-  author={Dong, Yubo and Zhu, Xukun and Pan, Zhengzhe and Zhu, Linchao and Yang, Yi},
-  booktitle={Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (ACL)},
-  year={2024},
-  url={https://arxiv.org/abs/2406.05720}
-}
-
-```
-
-## Contribution Guide 🤝
-
-Jump on board! We love contributions. Before you submit your pull request, make sure:
-- Your changes have aced the tests 🏆.
-- You've spruced up the docs (if you've added some pizzazz) 📚.
-
-## License 📜
-
-This project is all yours under the [MIT License](LICENSE).
+<p align="center">
+  <sub style="color: gray">Jiayu Zhang & Sean Hardesty Lewis • Final Report</sub>
+</p>
