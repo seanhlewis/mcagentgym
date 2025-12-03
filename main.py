@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Multi-agent GUI controller for VillagerAgent.
+Multi-agent GUI controller
 
 This GUI is a front-end that launches multiple worker processes via the
 multi-process core. Each worker owns its own VillagerBench + Node bridge.
